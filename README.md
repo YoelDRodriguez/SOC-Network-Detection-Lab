@@ -1,18 +1,18 @@
-##SOC Network Detection Lab — Suricata + Zeek + Wazuh
+## SOC Network Detection Lab — Suricata + Zeek + Wazuh
 > Laboratorio de detección de amenazas a nivel de red construido sobre AWS,
 > integrando Suricata 8.0.5 y Zeek 8.2.0 como sensores de red con Wazuh 4.14.5
 > como SIEM central — extiende el SOC Home Lab V1
 > agregando visibilidad completa de tráfico de red.
 
 ---
-##Objetivo
+## Objetivo
 
 Demostrar habilidades de detección a nivel de red mediante la integración de
 sensores IDS/NSM con un SIEM existente, cubriendo técnicas reales del framework
 MITRE ATT&CK que el endpoint detection del V1 no podía detectar por sí solo.
 
 ---
-##¿Por qué este proyecto?
+## ¿Por qué este proyecto?
 
 El SOC Home Lab V1 demostró detección basada en logs de host — agentes Wazuh,
 Sysmon, y eventos del sistema operativo. Lo que V1 no cubre es visibilidad de
@@ -23,7 +23,7 @@ Un SOC real necesita ambas capas. Este proyecto demuestra que sé construirlas
 y correlacionarlas.
 
 ---
-##Arquitectura
+## Arquitectura
 ![Architecture](infrastructure/architecture.png)
 
 | Componente | Tecnología | Specs |
@@ -37,7 +37,7 @@ y correlacionarlas.
 | Integración SIEM | Filebeat | eve.json + Zeek logs → Wazuh Indexer |
 
 ---
-##Cobertura MITRE ATT&CK
+## Cobertura MITRE ATT&CK
 ![MITRE Coverage](infrastructure/mitre-coverage.svg)
 
 | Técnica | Táctica | Sensor | Detección | Regla Custom |
@@ -47,7 +47,7 @@ y correlacionarlas.
 
 ---
 
-##Stack técnico
+## Stack técnico
 Sensor de red — network-sensor
 | Herramienta | Versión | Rol | 
 |---|---|---|
@@ -57,7 +57,7 @@ Sensor de red — network-sensor
 | Emerging Threats Open | 66,430 reglas | Ruleset de detección para Suricata |
 
 ---
-##Infraestructura AWS
+## Infraestructura AWS
 | Recurso | Detalle |
 |---|---|
 | Región | us-east-1 (N. Virginia) |
@@ -66,7 +66,7 @@ Sensor de red — network-sensor
 | Security Group | TCP 22 (SSH) + UDP 4789 (VXLAN) |
 
 ---
-##Decisiones de arquitectura
+## Decisiones de arquitectura
 
 VPC Traffic Mirroring sobre sensor inline o agente local
 AWS replica el tráfico de las instancias víctima a nivel de ENI hacia el
