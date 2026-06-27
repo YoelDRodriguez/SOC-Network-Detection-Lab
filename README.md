@@ -151,7 +151,7 @@ SOC-Network-Detection-Lab/
 ## Estado del proyecto
 
 - [x] Semana 1 — EC2 network-sensor, Suricata 8.0.5 + Zeek 8.2.0 operativos
-- [ ] Semana 2 — VPC Traffic Mirroring + Filebeat → Wazuh Indexer
+- [x] Semana 2 — VPC Traffic Mirroring + Filebeat → Wazuh Indexer
 - [ ] Semana 3 — T1046 Network Scanning: detección + write-up
 - [ ] Semana 4 — T1071.001 C2 over HTTP/S: detección + write-up
 - [ ] Semana 5 — Correlación host + red en Wazuh Dashboard
