@@ -225,15 +225,7 @@ Filtrar por source_sensor: zeek — deberían aparecer campos id.orig_h, id.resp
 
 | connection refused en el puerto 9200 | Wazuh Indexer escuchando solo en 127.0.0.1 | Cambiar network.host a 0.0.0.0 en opensearch.yml y reiniciar el servicio |
 
-| invalid_index_name_exception [license] | Filebeat 8.x (Elastic) incompatible con OpenSearch — verifica un endpoint que no existe | Reinstalar con Filebeat 7.10.2 del repositorio de Wazuh |
 
-| El filebeat.yml del wazuh-server quedó apuntando a IPs o configuración incorrecta | Edición accidental del archivo en la instancia equivocada (confundir SSH sessions) | Verificar siempre hostname antes de editar configuración; reconstruir con filebeat.inputs apuntando a alerts.json + wazuh-template.json |
-
-| Scheduled task no genera evento aunque el canal de logging está enabled: true | Canal recién habilitado no estaba "caliente" — Windows requiere reinicio del servicio para empezar a loguear activamente | Restart-Service Schedule -Force antes de generar el evento de prueba |
-
-| source_sensor: zeek no aparece en el Dashboard, solo Suricata | Proceso de Zeek crasheado (zeekctl status → crashed), conn.log congelado en el tiempo | zeekctl deploy para relevantar; crear unit file systemd con Restart=on-failure para que no vuelva a quedar caído sin supervisión |
-
-| Zeek sin persistencia tras reinicios de la instancia | zeekctl no se integra con systemd por defecto | Crear /etc/systemd/system/zeek.service con ExecStart=/opt/zeek/bin/zeekctl deploy y systemctl enable zeek |
 ---
 ## Hallazgos clave de la semana
 1. Filebeat de Elastic y OpenSearch no son intercambiables — aunque
