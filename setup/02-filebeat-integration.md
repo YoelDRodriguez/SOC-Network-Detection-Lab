@@ -178,7 +178,92 @@ network.host: 0.0.0.0
 ```xml
 sudo systemctl restart wazuh-indexer
 ```
-
-
+### 3.2 Probar la conexión antes de iniciar el servicio
 ```xml
+sudo filebeat test output
 ```
+Resultado esperado:
+```xml
+talk to server... OK
+version: 7.10.2
+```
+### 3.3 Iniciar Filebeat
+```xml
+sudo systemctl enable filebeat
+sudo systemctl start filebeat
+```
+---
+
+## 4. Verificación de datos en Wazuh
+### 4.1 Confirmar el índice por API
+```xml
+curl -k -u admin:'<password>' "https://<IP-wazuh-server>:9200/_cat/indices?v" | grep filebeat-network
+```
+Resultado esperado:
+```xml
+yellow open filebeat-network-sensor-2026.06.24   ...   17984   ...   43.1mb
+```
+### 4.2 Crear el index pattern en el Dashboard
+
+Menú ☰ → Dashboards Management → Index Patterns → Create index pattern
+| Campo | Valor |
+|---|---|
+| Name | filebeat-network-sensor-* |
+| Time | field@timestamp |
+
+### 4.3 Confirmar ambas fuentes en Discover
+
+Menú ☰ → Discover → seleccionar filebeat-network-sensor-*
+Filtrar por source_sensor: suricata — deberían aparecer campos event_type, alert.
+Filtrar por source_sensor: zeek — deberían aparecer campos id.orig_h, id.resp_h, proto.
+---
+
+## Troubleshooting
+| Síntoma | Causa | Solución |
+|---|---|---|
+|dial tcp ...:9200: i/o timeout | Security group del wazuh-server bloqueando el puerto 9200 | Agregar regla de entrada TCP 9200 desde la IP del network-sensor |
+
+|connection refused en el puerto 9200 | Wazuh Indexer escuchando solo en 127.0.0.1 | Cambiar network.host a 0.0.0.0 en opensearch.yml y reiniciar el servicio |
+
+| invalid_index_name_exception [_license] | Filebeat 8.x (Elastic) incompatible con OpenSearch — verifica un endpoint que no existe | Reinstalar con Filebeat 7.10.2 del repositorio de Wazuh |
+
+| El filebeat.yml del wazuh-server quedó apuntando a IPs o configuración incorrecta | Edición accidental del archivo en la instancia equivocada (confundir SSH sessions) | Verificar siempre hostname antes de editar configuración; reconstruir con filebeat.inputs apuntando a alerts.json + wazuh-template.json |
+
+| Scheduled task no genera evento aunque el canal de logging está enabled: true | Canal recién habilitado no estaba "caliente" — Windows requiere reinicio del servicio para empezar a loguear activamente | Restart-Service Schedule -Force antes de generar el evento de prueba |
+
+| source_sensor: zeek no aparece en el Dashboard, solo Suricata | Proceso de Zeek crasheado (zeekctl status → crashed), conn.log congelado en el tiempo | zeekctl deploy para relevantar; crear unit file systemd con Restart=on-failure para que no vuelva a quedar caído sin supervisión |
+
+| Zeek sin persistencia tras reinicios de la instancia | zeekctl no se integra con systemd por defecto | Crear /etc/systemd/system/zeek.service con ExecStart=/opt/zeek/bin/zeekctl deploy y systemctl enable zeek |
+---
+## Hallazgos clave de la semana
+1. Filebeat de Elastic y OpenSearch no son intercambiables — aunque
+ambos hablan el "protocolo Elasticsearch", Filebeat 8.x rechaza
+activamente servidores OpenSearch por un chequeo de licencia. La solución
+no es configuración, es usar la distribución correcta del software.
+
+3. zeekctl deploy no es persistente por sí solo — un sensor de red en
+producción necesita supervisión activa del proceso (systemd, supervisord,
+o similar). Sin eso, un crash silencioso puede pasar desapercibido por
+días, exactamente lo que ocurrió en este lab.
+
+4. Los canales de logging de Windows pueden estar "enabled" sin estar
+activos. wevtutil gl reportando enabled: true no garantiza que el
+canal esté escribiendo eventos nuevos — un reinicio del servicio asociado
+puede ser necesario para que el canal empiece a loguear tras habilitars
+
+5. Trabajar con múltiples instancias SSH simultáneas requiere disciplina
+de verificación. Confundir terminales causó la sobreescritura accidental
+de la configuración de Filebeat del wazuh-server — el hábito de correr
+hostname antes de cualquier cambio de configuración evita este tipo de
+incidente.
+
+
+
+
+
+
+
+
+
+
+
