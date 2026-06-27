@@ -153,9 +153,9 @@ logging.files:
   name: filebeat
   keepfiles: 7
 ```
->El campo source_sensor es lo que permite diferenciar y filtrar eventos de
->Suricata vs Zeek dentro del mismo índice — esencial para las reglas de
->correlación de la Semana 5.
+> El campo source_sensor es lo que permite diferenciar y filtrar eventos de
+> Suricata vs Zeek dentro del mismo índice — esencial para las reglas de
+> correlación de la Semana 5.
 
 ### 3.1 Habilitar el puerto 9200 en el wazuh-server
 
@@ -213,18 +213,21 @@ Menú → Dashboards Management → Index Patterns → Create index pattern
 
 ### 4.3 Confirmar ambas fuentes en Discover
 
-Menú → Discover → seleccionar filebeat-network-sensor-*
-Filtrar por source_sensor: suricata — deberían aparecer campos event_type, alert.
-Filtrar por source_sensor: zeek — deberían aparecer campos id.orig_h, id.resp_h, proto.
+> Menú → Discover → seleccionar filebeat-network-sensor-*
+> Filtrar por source_sensor: suricata — deberían aparecer campos event_type, alert.
+> Filtrar por source_sensor: zeek — deberían aparecer campos id.orig_h, id.resp_h, proto.
 ---
 
 ## Troubleshooting
 | Sintoma | Causa | Solución |
 |---|---|---|
 |dial tcp ...:9200: i/o timeout | Security group del wazuh-server bloqueando el puerto 9200 | Agregar regla de entrada TCP 9200 desde la IP del network-sensor |
-
 | connection refused en el puerto 9200 | Wazuh Indexer escuchando solo en 127.0.0.1 | Cambiar network.host a 0.0.0.0 en opensearch.yml y reiniciar el servicio |
-
+| invalid_index_name_exception [license] | Filebeat 8.x (Elastic) incompatible con OpenSearch — verifica un endpoint que no existe | Reinstalar con Filebeat 7.10.2 del repositorio de Wazuh |
+| El filebeat.yml del wazuh-server quedó apuntando a IPs o configuración incorrecta | Edición accidental del archivo en la instancia equivocada (confundir SSH sessions) | Verificar siempre hostname antes de editar configuración; reconstruir con filebeat.inputs apuntando a alerts.json + wazuh-template.json |
+| Scheduled task no genera evento aunque el canal de logging está enabled: true | Canal recién habilitado no estaba "caliente" — Windows requiere reinicio del servicio para empezar a loguear activamente | Restart-Service Schedule -Force antes de generar el evento de prueba |
+| source_sensor: zeek no aparece en el Dashboard, solo Suricata | Proceso de Zeek crasheado (zeekctl status → crashed), conn.log congelado en el tiempo | zeekctl deploy para relevantar; crear unit file systemd con Restart=on-failure para que no vuelva a quedar caído sin supervisión |
+| Zeek sin persistencia tras reinicios de la instancia | zeekctl no se integra con systemd por defecto | Crear /etc/systemd/system/zeek.service con ExecStart=/opt/zeek/bin/zeekctl deploy y systemctl enable zeek |
 
 ---
 ## Hallazgos clave de la semana
