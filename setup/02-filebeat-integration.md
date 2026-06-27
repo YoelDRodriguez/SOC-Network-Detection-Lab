@@ -64,7 +64,7 @@ Resultado esperado: paquetes VXLAN encapsulando el tráfico real de las víctima
 Dos VNI distintos confirman ambas sessions activas simultáneamente.
 ---
 
-##2. Instalación de Filebeat
+## 2. Instalación de Filebeat
 
 Decisión crítica: qué versión de Filebeat usar
 No usar el Filebeat oficial de Elastic 8.x contra Wazuh Indexer (OpenSearch).
@@ -205,7 +205,7 @@ yellow open filebeat-network-sensor-2026.06.24   ...   17984   ...   43.1mb
 ```
 ### 4.2 Crear el index pattern en el Dashboard
 
-Menú ☰ → Dashboards Management → Index Patterns → Create index pattern
+Menú → Dashboards Management → Index Patterns → Create index pattern
 | Campo | Valor |
 |---|---|
 | Name | filebeat-network-sensor-* |
@@ -213,19 +213,19 @@ Menú ☰ → Dashboards Management → Index Patterns → Create index pattern
 
 ### 4.3 Confirmar ambas fuentes en Discover
 
-Menú ☰ → Discover → seleccionar filebeat-network-sensor-*
+Menú → Discover → seleccionar filebeat-network-sensor-*
 Filtrar por source_sensor: suricata — deberían aparecer campos event_type, alert.
 Filtrar por source_sensor: zeek — deberían aparecer campos id.orig_h, id.resp_h, proto.
 ---
 
 ## Troubleshooting
-| Síntoma | Causa | Solución |
+| Sintoma | Causa | Solución |
 |---|---|---|
 |dial tcp ...:9200: i/o timeout | Security group del wazuh-server bloqueando el puerto 9200 | Agregar regla de entrada TCP 9200 desde la IP del network-sensor |
 
-|connection refused en el puerto 9200 | Wazuh Indexer escuchando solo en 127.0.0.1 | Cambiar network.host a 0.0.0.0 en opensearch.yml y reiniciar el servicio |
+| connection refused en el puerto 9200 | Wazuh Indexer escuchando solo en 127.0.0.1 | Cambiar network.host a 0.0.0.0 en opensearch.yml y reiniciar el servicio |
 
-| invalid_index_name_exception [_license] | Filebeat 8.x (Elastic) incompatible con OpenSearch — verifica un endpoint que no existe | Reinstalar con Filebeat 7.10.2 del repositorio de Wazuh |
+| invalid_index_name_exception [license] | Filebeat 8.x (Elastic) incompatible con OpenSearch — verifica un endpoint que no existe | Reinstalar con Filebeat 7.10.2 del repositorio de Wazuh |
 
 | El filebeat.yml del wazuh-server quedó apuntando a IPs o configuración incorrecta | Edición accidental del archivo en la instancia equivocada (confundir SSH sessions) | Verificar siempre hostname antes de editar configuración; reconstruir con filebeat.inputs apuntando a alerts.json + wazuh-template.json |
 
